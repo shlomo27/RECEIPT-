@@ -1,6 +1,7 @@
 node_modules/
 dist/
 server/recipe_ai.db
+server/data.json
 .env
 *.log
 .DS_Store

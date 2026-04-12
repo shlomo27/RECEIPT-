@@ -1,5 +1,3 @@
-import * as cheerio from 'cheerio';
-
 // Known recipe sites with metadata
 const RECIPE_SITES = {
   'foodnetwork.com': { name: 'Food Network', hebrewName: 'פוד נטוורק' },
