@@ -1,0 +1,88 @@
+import { useState } from 'react';
+
+export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleClick = () => {
+    onTrackClick(recipe);
+    onSelect(recipe);
+  };
+
+  const difficultyColors = {
+    'קל מאוד': 'bg-green-100 text-green-700',
+    'קל': 'bg-green-100 text-green-700',
+    'בינוני': 'bg-yellow-100 text-yellow-700',
+    'מתקדם': 'bg-red-100 text-red-700',
+  };
+
+  return (
+    <div
+      className={`card cursor-pointer animate-fade-in ${isPreferred ? 'ring-2 ring-brand-400 ring-offset-2' : ''}`}
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {isPreferred && (
+        <div className="bg-gradient-to-l from-brand-500 to-brand-400 text-white text-xs font-medium px-3 py-1 flex items-center gap-1">
+          <span>⭐</span>
+          <span>מומלץ עבורך</span>
+        </div>
+      )}
+
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="flex-1">
+            <h3 className="font-bold text-gray-800 text-lg leading-tight mb-1 line-clamp-2">
+              {recipe.title}
+            </h3>
+            <p className="text-sm text-brand-500 font-medium">
+              {recipe.siteName}
+            </p>
+          </div>
+          <div className="flex items-center gap-1 text-amber-500 shrink-0">
+            <span className="text-sm font-bold">{recipe.rating}</span>
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+              <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+            </svg>
+          </div>
+        </div>
+
+        <p className="text-gray-500 text-sm mb-4 line-clamp-2 leading-relaxed">
+          {recipe.snippet}
+        </p>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-xs text-gray-400">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {recipe.cookTime}
+            </span>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${difficultyColors[recipe.difficulty] || 'bg-gray-100 text-gray-600'}`}>
+              {recipe.difficulty}
+            </span>
+          </div>
+
+          {recipe.chefName && (
+            <span className="text-xs text-gray-400">
+              {recipe.chefName}
+            </span>
+          )}
+        </div>
+
+        <div className={`mt-3 pt-3 border-t border-gray-50 flex items-center justify-between transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-60'}`}>
+          <span className="text-xs text-gray-400 truncate max-w-[200px]">
+            {recipe.url}
+          </span>
+          <span className="text-brand-500 text-sm font-medium flex items-center gap-1">
+            בחר מתכון
+            <svg className="w-4 h-4 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
