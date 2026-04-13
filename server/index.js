@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
+import { searchYouTube, searchTikTok } from './youtube.js';
 import {
   addSearchHistory,
   getSearchHistory,
@@ -32,24 +33,35 @@ app.use((req, res, next) => {
 });
 
 // Search recipes
-app.post('/api/search', (req, res) => {
+app.post('/api/search', async (req, res) => {
   try {
     const { query, filters } = req.body;
     if (!query || query.trim().length === 0) {
       return res.status(400).json({ error: 'נא להזין שם מתכון לחיפוש' });
     }
 
+    const trimmedQuery = query.trim();
+
     // Save search history
-    addSearchHistory(req.userId, query.trim());
+    addSearchHistory(req.userId, trimmedQuery);
 
     // Get user preferences
     const preferences = getUserPreferences(req.userId);
 
-    // Search and personalize
-    const results = searchRecipes(query.trim(), preferences, filters || {});
+    // Search sites and YouTube in parallel
+    const [siteResults, youtubeResults, tiktokResults] = await Promise.all([
+      Promise.resolve(searchRecipes(trimmedQuery, preferences, filters || {})),
+      searchYouTube(trimmedQuery, 3),
+      searchTikTok(trimmedQuery),
+    ]);
+
+    // Mix: site results first, then video results
+    const allResults = [...siteResults.results, ...youtubeResults, ...tiktokResults];
 
     res.json({
-      ...results,
+      ...siteResults,
+      results: allResults,
+      totalResults: allResults.length,
       preferences: {
         hasHistory: preferences.hasHistory,
         topSites: preferences.topSites.slice(0, 3),

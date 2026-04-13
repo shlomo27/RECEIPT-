@@ -49,6 +49,25 @@ export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred
         </div>
       )}
 
+      {recipe.image && (
+        <div className="relative">
+          <img
+            src={recipe.image}
+            alt={recipe.title}
+            className="w-full h-40 object-cover"
+          />
+          {recipe.contentType === 'video' && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-red-600 mr-[-2px]" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="p-5 relative">
         {onToggleFavorite && (
           <button
