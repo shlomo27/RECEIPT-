@@ -18,7 +18,7 @@ import {
   getShoppingLists,
   deleteShoppingList,
 } from './database.js';
-import { searchRecipes, extractIngredients, extractSteps, comparePrices } from './recipeSearch.js';
+import { searchRecipes, extractIngredients, extractSteps, comparePrices, searchByIngredients } from './recipeSearch.js';
 
 const app = express();
 const PORT = 3001;
@@ -95,6 +95,21 @@ app.get('/api/preferences', (req, res) => {
   } catch (error) {
     console.error('Preferences error:', error);
     res.status(500).json({ error: 'שגיאה בטעינת העדפות' });
+  }
+});
+
+// Search by ingredients
+app.post('/api/search-by-ingredients', (req, res) => {
+  try {
+    const { ingredients } = req.body;
+    if (!ingredients || ingredients.length === 0) {
+      return res.status(400).json({ error: 'נא להזין לפחות מרכיב אחד' });
+    }
+    const results = searchByIngredients(ingredients);
+    res.json({ results, totalResults: results.length });
+  } catch (error) {
+    console.error('Ingredient search error:', error);
+    res.status(500).json({ error: 'שגיאה בחיפוש לפי מרכיבים' });
   }
 });
 

@@ -82,6 +82,9 @@ const RECIPE_META = {
 // Simulated search results (in production, use a real search API like Google Custom Search or Bing)
 // This provides realistic demo data
 function generateSearchResults(query) {
+  // Generate food image URL using loremflickr
+  const getImage = (keyword) => `https://loremflickr.com/400/300/${encodeURIComponent(keyword)},food`;
+
   const recipeSites = [
     {
       title: `${query} - מתכון מושלם | פודיש`,
@@ -93,7 +96,7 @@ function generateSearchResults(query) {
       rating: 4.8,
       cookTime: '45 דקות',
       difficulty: 'בינוני',
-      image: null,
+      image: getImage(query),
     },
     {
       title: `מתכון ${query} של השולחן | קל וטעים`,
@@ -105,7 +108,7 @@ function generateSearchResults(query) {
       rating: 4.6,
       cookTime: '60 דקות',
       difficulty: 'קל',
-      image: null,
+      image: getImage(query + ' recipe'),
     },
     {
       title: `Best ${query} Recipe - Food Network`,
@@ -117,7 +120,7 @@ function generateSearchResults(query) {
       rating: 4.9,
       cookTime: '30 דקות',
       difficulty: 'מתקדם',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
     {
       title: `${query} Recipe | AllRecipes`,
@@ -129,7 +132,7 @@ function generateSearchResults(query) {
       rating: 4.5,
       cookTime: '50 דקות',
       difficulty: 'קל',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
     {
       title: `מתכון ${query} מהיר וקל | 10 דקות`,
@@ -141,7 +144,7 @@ function generateSearchResults(query) {
       rating: 4.3,
       cookTime: '10 דקות',
       difficulty: 'קל מאוד',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
     {
       title: `${query} - Bon Appétit`,
@@ -153,7 +156,7 @@ function generateSearchResults(query) {
       rating: 4.7,
       cookTime: '40 דקות',
       difficulty: 'בינוני',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
     {
       title: `${query} מסורתי | על השולחן`,
@@ -165,7 +168,7 @@ function generateSearchResults(query) {
       rating: 4.4,
       cookTime: '55 דקות',
       difficulty: 'בינוני',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
     {
       title: `Easy ${query} | Simply Recipes`,
@@ -177,7 +180,7 @@ function generateSearchResults(query) {
       rating: 4.6,
       cookTime: '35 דקות',
       difficulty: 'קל',
-      image: null,
+      image: getImage(query + ' cooking'),
     },
   ];
 
@@ -689,13 +692,62 @@ export function extractSteps(recipeTitle) {
 }
 
 // Price comparison simulation
+// Search recipes by ingredients the user has
+export function searchByIngredients(userIngredients) {
+  const ingredientDB = extractIngredients.__db || buildIngredientDBMap();
+  const results = [];
+
+  for (const [recipeName, recipeIngredients] of Object.entries(ingredientDB)) {
+    if (recipeName === 'default') continue;
+    const recipeIngNames = recipeIngredients.map(i => i.name);
+    const matched = userIngredients.filter(ui =>
+      recipeIngNames.some(ri => ri.includes(ui) || ui.includes(ri))
+    );
+    if (matched.length > 0) {
+      const missing = recipeIngNames.filter(ri =>
+        !userIngredients.some(ui => ri.includes(ui) || ui.includes(ri))
+      );
+      const meta = RECIPE_META[recipeName] || {};
+      results.push({
+        recipeName,
+        matchedCount: matched.length,
+        totalIngredients: recipeIngNames.length,
+        matchPercent: Math.round((matched.length / recipeIngNames.length) * 100),
+        matched,
+        missing,
+        cuisine: meta.cuisine || 'אחר',
+        difficulty: meta.difficulty || 'בינוני',
+        maxTime: meta.maxTime || 30,
+      });
+    }
+  }
+
+  return results.sort((a, b) => b.matchPercent - a.matchPercent);
+}
+
+// Helper to get ingredient DB as a map
+function buildIngredientDBMap() {
+  const map = {};
+  const testRecipes = [
+    'שניצל', 'חומוס', 'שקשוקה', 'פסטה', 'עוגת שוקולד', 'פלאפל',
+    'מרק עוף', 'לזניה', 'סלט קיסר', 'בורקס', 'קוסקוס', 'חציל',
+    'כנאפה', 'מוסקה', 'מלווח', "ג'חנון", 'סביח', 'פיצה', 'טאקו',
+    'סושי', 'קארי', 'שווארמה', 'קובה', "מג'דרה", 'פריטטה', 'המבורגר',
+  ];
+  for (const name of testRecipes) {
+    map[name] = extractIngredients(name);
+  }
+  extractIngredients.__db = map;
+  return map;
+}
+
 export function comparePrices(ingredients) {
   const stores = [
-    { name: 'רמי לוי', logo: '🛒', color: '#e74c3c' },
-    { name: 'שופרסל', logo: '🏪', color: '#3498db' },
-    { name: 'יינות ביתן', logo: '🍷', color: '#9b59b6' },
-    { name: 'חצי חינם', logo: '💰', color: '#2ecc71' },
-    { name: 'מגה', logo: '🏬', color: '#f39c12' },
+    { name: 'רמי לוי', logo: '🛒', color: '#e74c3c', orderUrl: 'https://www.rframi-levy.co.il/he/online/search?q=' },
+    { name: 'שופרסל', logo: '🏪', color: '#3498db', orderUrl: 'https://www.shufersal.co.il/online/he/search/results?q=' },
+    { name: 'יינות ביתן', logo: '🍷', color: '#9b59b6', orderUrl: 'https://www.ybitan.co.il/search?q=' },
+    { name: 'חצי חינם', logo: '💰', color: '#2ecc71', orderUrl: 'https://www.hazi-hinam.co.il/search?q=' },
+    { name: 'מגה', logo: '🏬', color: '#f39c12', orderUrl: 'https://www.mega.co.il/search?q=' },
   ];
 
   const priceComparison = stores.map(store => {

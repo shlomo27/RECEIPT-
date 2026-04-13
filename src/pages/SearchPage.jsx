@@ -20,6 +20,9 @@ export default function SearchPage() {
   const [lastQuery, setLastQuery] = useState('');
   const [filters, setFilters] = useState({});
   const [showFilters, setShowFilters] = useState(false);
+  const [searchMode, setSearchMode] = useState('name'); // 'name' or 'ingredients'
+  const [ingredientInput, setIngredientInput] = useState('');
+  const [ingredientResults, setIngredientResults] = useState(null);
 
   useEffect(() => {
     api.getFavorites().then(favs => {
@@ -58,6 +61,23 @@ export default function SearchPage() {
       }
     } catch (err) {
       console.error('Failed to toggle favorite:', err);
+    }
+  };
+
+  const handleIngredientSearch = async () => {
+    const items = ingredientInput.split(',').map(s => s.trim()).filter(Boolean);
+    if (items.length === 0) return;
+    setIsLoading(true);
+    setError(null);
+    setHasSearched(true);
+    try {
+      const data = await api.searchByIngredients(items);
+      setIngredientResults(data.results);
+    } catch (err) {
+      setError('שגיאה בחיפוש לפי מרכיבים');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,12 +121,120 @@ export default function SearchPage() {
         </p>
       </div>
 
-      {/* Search bar */}
-      <SearchBar
+      {/* Search mode toggle */}
+      <div className="flex justify-center mb-6">
+        <div className="bg-gray-100 p-1 rounded-xl inline-flex gap-1">
+          <button
+            onClick={() => { setSearchMode('name'); setIngredientResults(null); }}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              searchMode === 'name' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            חיפוש לפי שם
+          </button>
+          <button
+            onClick={() => { setSearchMode('ingredients'); setResults(null); }}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              searchMode === 'ingredients' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            יש לי מרכיבים
+          </button>
+        </div>
+      </div>
+
+      {/* Search bar - name mode */}
+      {searchMode === 'name' && <SearchBar
         onSearch={handleSearch}
         isLoading={isLoading}
         recentSearches={searchHistory}
-      />
+      />}
+
+      {/* Ingredient search mode */}
+      {searchMode === 'ingredients' && (
+        <div className="max-w-2xl mx-auto">
+          <div className="card p-6">
+            <h3 className="font-bold text-gray-800 mb-2">מה יש לך במקרר?</h3>
+            <p className="text-sm text-gray-400 mb-4">הקלד מרכיבים מופרדים בפסיקים ונמצא לך מתכונים מתאימים</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={ingredientInput}
+                onChange={(e) => setIngredientInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleIngredientSearch()}
+                placeholder="למשל: עוף, תפוחי אדמה, בצל, שום..."
+                className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-brand-400 focus:ring-2 focus:ring-brand-100 outline-none text-right"
+                dir="rtl"
+              />
+              <button
+                onClick={handleIngredientSearch}
+                disabled={isLoading || !ingredientInput.trim()}
+                className="btn-primary px-6 disabled:opacity-50"
+              >
+                {isLoading ? 'מחפש...' : 'מצא מתכונים'}
+              </button>
+            </div>
+          </div>
+
+          {/* Ingredient search results */}
+          {ingredientResults && ingredientResults.length > 0 && (
+            <div className="mt-6 space-y-3">
+              <h3 className="text-lg font-bold text-gray-800">
+                נמצאו {ingredientResults.length} מתכונים מתאימים
+              </h3>
+              {ingredientResults.map((r, i) => (
+                <div
+                  key={i}
+                  className="card p-5 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => handleSearch(r.recipeName)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-bold text-gray-800 text-lg">{r.recipeName}</h4>
+                    <span className={`text-sm font-bold px-3 py-1 rounded-full ${
+                      r.matchPercent >= 70 ? 'bg-green-100 text-green-700' :
+                      r.matchPercent >= 40 ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>
+                      {r.matchPercent}% התאמה
+                    </span>
+                  </div>
+                  <div className="flex gap-4 text-sm text-gray-400 mb-3">
+                    <span>{r.cuisine}</span>
+                    <span>{r.difficulty}</span>
+                    <span>עד {r.maxTime} דקות</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {r.matched.map((m, j) => (
+                      <span key={j} className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
+                        {m} ✓
+                      </span>
+                    ))}
+                  </div>
+                  {r.missing.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      <span className="text-xs text-gray-400">חסר:</span>
+                      {r.missing.slice(0, 5).map((m, j) => (
+                        <span key={j} className="text-xs bg-red-50 text-red-400 px-2 py-0.5 rounded-full">
+                          {m}
+                        </span>
+                      ))}
+                      {r.missing.length > 5 && (
+                        <span className="text-xs text-gray-400">+{r.missing.length - 5} נוספים</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {ingredientResults && ingredientResults.length === 0 && (
+            <div className="mt-6 text-center text-gray-400 py-8">
+              לא נמצאו מתכונים עם המרכיבים האלה. נסה מרכיבים אחרים.
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Error */}
       {error && (

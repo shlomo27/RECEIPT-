@@ -119,6 +119,17 @@ export async function deleteShoppingList(id) {
   return res.json();
 }
 
+// --- Search by ingredients ---
+export async function searchByIngredients(ingredients) {
+  const res = await fetch('/api/search-by-ingredients', {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ ingredients }),
+  });
+  if (!res.ok) throw new Error('Failed to search by ingredients');
+  return res.json();
+}
+
 // --- AI Chat ---
 export async function sendChatMessage(message, recipeContext) {
   const res = await fetch('/api/chat', {
