@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 // Search recipes
 app.post('/api/search', (req, res) => {
   try {
-    const { query } = req.body;
+    const { query, filters } = req.body;
     if (!query || query.trim().length === 0) {
       return res.status(400).json({ error: 'נא להזין שם מתכון לחיפוש' });
     }
@@ -46,7 +46,7 @@ app.post('/api/search', (req, res) => {
     const preferences = getUserPreferences(req.userId);
 
     // Search and personalize
-    const results = searchRecipes(query.trim(), preferences);
+    const results = searchRecipes(query.trim(), preferences, filters || {});
 
     res.json({
       ...results,

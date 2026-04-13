@@ -44,6 +44,35 @@ function extractChefName(title, snippet) {
   return null;
 }
 
+// Recipe metadata database with cuisine, difficulty, maxTime
+const RECIPE_META = {
+  'שניצל': { cuisine: 'ישראלי', difficulty: 'קל', maxTime: 30 },
+  'חומוס': { cuisine: 'מזרחי', difficulty: 'בינוני', maxTime: 120 },
+  'שקשוקה': { cuisine: 'ישראלי', difficulty: 'קל', maxTime: 25 },
+  'פסטה': { cuisine: 'אירופאי', difficulty: 'קל', maxTime: 30 },
+  'עוגת שוקולד': { cuisine: 'אירופאי', difficulty: 'בינוני', maxTime: 60 },
+  'פלאפל': { cuisine: 'ישראלי', difficulty: 'בינוני', maxTime: 45 },
+  'מרק עוף': { cuisine: 'ישראלי', difficulty: 'קל', maxTime: 90 },
+  'לזניה': { cuisine: 'אירופאי', difficulty: 'מתקדם', maxTime: 90 },
+  'סלט קיסר': { cuisine: 'אירופאי', difficulty: 'קל', maxTime: 15 },
+  'בורקס': { cuisine: 'ישראלי', difficulty: 'בינוני', maxTime: 60 },
+  'קוסקוס': { cuisine: 'מזרחי', difficulty: 'בינוני', maxTime: 75 },
+  'חציל': { cuisine: 'מזרחי', difficulty: 'קל', maxTime: 30 },
+  'כנאפה': { cuisine: 'מזרחי', difficulty: 'מתקדם', maxTime: 60 },
+  'מוסקה': { cuisine: 'אירופאי', difficulty: 'מתקדם', maxTime: 90 },
+  'מלווח': { cuisine: 'מזרחי', difficulty: 'בינוני', maxTime: 180 },
+  'ג\'חנון': { cuisine: 'מזרחי', difficulty: 'בינוני', maxTime: 480 },
+  'סביח': { cuisine: 'ישראלי', difficulty: 'קל', maxTime: 20 },
+  'פיצה': { cuisine: 'אירופאי', difficulty: 'בינוני', maxTime: 60 },
+  'טאקו': { cuisine: 'אחר', difficulty: 'קל', maxTime: 30 },
+  'סושי': { cuisine: 'אסייתי', difficulty: 'מתקדם', maxTime: 60 },
+  'קארי': { cuisine: 'אסייתי', difficulty: 'בינוני', maxTime: 45 },
+  'שווארמה': { cuisine: 'מזרחי', difficulty: 'בינוני', maxTime: 40 },
+  'קובה': { cuisine: 'מזרחי', difficulty: 'מתקדם', maxTime: 90 },
+  'מג\'דרה': { cuisine: 'מזרחי', difficulty: 'קל', maxTime: 45 },
+  'פריטטה': { cuisine: 'אירופאי', difficulty: 'קל', maxTime: 25 },
+};
+
 // Simulated search results (in production, use a real search API like Google Custom Search or Bing)
 // This provides realistic demo data
 function generateSearchResults(query) {
@@ -193,8 +222,33 @@ function sortByPreference(results, preferences) {
   });
 }
 
-export function searchRecipes(query, preferences) {
+export function searchRecipes(query, preferences, filters = {}) {
   let results = generateSearchResults(query);
+
+  // Apply cuisine metadata from RECIPE_META
+  const meta = RECIPE_META[query] || RECIPE_META[query.trim()] || null;
+  if (meta) {
+    results = results.map(r => ({
+      ...r,
+      cuisine: meta.cuisine,
+      maxTime: meta.maxTime,
+    }));
+  }
+
+  // Apply filters
+  if (filters.cuisine) {
+    results = results.filter(r => !r.cuisine || r.cuisine === filters.cuisine);
+  }
+  if (filters.difficulty) {
+    results = results.filter(r => r.difficulty === filters.difficulty);
+  }
+  if (filters.maxTime) {
+    const maxMin = parseInt(filters.maxTime, 10);
+    results = results.filter(r => {
+      const mins = parseInt(r.cookTime, 10);
+      return isNaN(mins) || mins <= maxMin;
+    });
+  }
 
   // Sort by user preferences
   results = sortByPreference(results, preferences);
@@ -207,6 +261,11 @@ export function searchRecipes(query, preferences) {
     personalizedMessages,
     totalResults: results.length,
     query,
+    availableFilters: {
+      cuisines: ['ישראלי', 'מזרחי', 'אירופאי', 'אסייתי', 'אחר'],
+      difficulties: ['קל', 'בינוני', 'מתקדם'],
+      maxTimes: [15, 30, 45, 60, 90, 120],
+    },
   };
 }
 
@@ -274,6 +333,206 @@ export function extractIngredients(recipeTitle) {
       { name: 'שמנת מתוקה', amount: 'חצי כוס', category: 'חלב וביצים' },
       { name: 'תמצית וניל', amount: 'כפית', category: 'מוצרי יסוד' },
     ],
+    'פלאפל': [
+      { name: 'גרגירי חומוס', amount: '500 גרם', category: 'קטניות ודגנים' },
+      { name: 'בצל', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'פטרוזיליה', amount: 'חופן גדול', category: 'ירקות' },
+      { name: 'כוסברה', amount: 'חופן', category: 'ירקות' },
+      { name: 'שום', amount: '5 שיניים', category: 'ירקות' },
+      { name: 'כמון', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'כורכום', amount: 'חצי כפית', category: 'שמנים ותבלינים' },
+      { name: 'אבקת אפייה', amount: 'כפית', category: 'מוצרי יסוד' },
+      { name: 'שמן לטיגון עמוק', amount: 'לפי הצורך', category: 'שמנים ותבלינים' },
+    ],
+    'מרק עוף': [
+      { name: 'עוף שלם', amount: '1 ק"ג', category: 'בשר ועוף' },
+      { name: 'גזר', amount: '3 יחידות', category: 'ירקות' },
+      { name: 'סלרי', amount: '3 גבעולים', category: 'ירקות' },
+      { name: 'בצל', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'שורש פטרוזיליה', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'כורכום', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'מלח', amount: '2 כפיות', category: 'שמנים ותבלינים' },
+      { name: 'פלפל שחור', amount: 'חצי כפית', category: 'שמנים ותבלינים' },
+      { name: 'אטריות', amount: '200 גרם', category: 'קטניות ודגנים' },
+    ],
+    'לזניה': [
+      { name: 'דפי לזניה', amount: '250 גרם', category: 'קטניות ודגנים' },
+      { name: 'בשר טחון', amount: '500 גרם', category: 'בשר ועוף' },
+      { name: 'רסק עגבניות', amount: 'פחית', category: 'שימורים' },
+      { name: 'בצל', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'שום', amount: '4 שיניים', category: 'ירקות' },
+      { name: 'מוצרלה', amount: '300 גרם', category: 'חלב וביצים' },
+      { name: 'רוטב בשמל', amount: '2 כוסות', category: 'חלב וביצים' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'אורגנו', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'סלט קיסר': [
+      { name: 'חסה רומית', amount: '2 ראשים', category: 'ירקות' },
+      { name: 'פרמזן', amount: '50 גרם', category: 'חלב וביצים' },
+      { name: 'קרוטונים', amount: 'כוס', category: 'מוצרי יסוד' },
+      { name: 'אנשובי', amount: '4 פילה', category: 'דגים' },
+      { name: 'שום', amount: '2 שיניים', category: 'ירקות' },
+      { name: 'חרדל דיז\'ון', amount: 'כפית', category: 'רטבים' },
+      { name: 'מיץ לימון', amount: '2 כפות', category: 'פירות' },
+      { name: 'שמן זית', amount: 'רבע כוס', category: 'שמנים ותבלינים' },
+    ],
+    'בורקס': [
+      { name: 'בצק עלים', amount: '500 גרם', category: 'מוצרי יסוד' },
+      { name: 'גבינה בולגרית', amount: '300 גרם', category: 'חלב וביצים' },
+      { name: 'תפוחי אדמה', amount: '3 יחידות', category: 'ירקות' },
+      { name: 'ביצים', amount: '2 יחידות', category: 'חלב וביצים' },
+      { name: 'שמיר', amount: 'חופן', category: 'ירקות' },
+      { name: 'שומשום', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'מלח ופלפל', amount: 'לפי הטעם', category: 'שמנים ותבלינים' },
+    ],
+    'קוסקוס': [
+      { name: 'קוסקוס', amount: '2 כוסות', category: 'קטניות ודגנים' },
+      { name: 'חזה עוף', amount: '500 גרם', category: 'בשר ועוף' },
+      { name: 'גזר', amount: '3 יחידות', category: 'ירקות' },
+      { name: 'קישוא', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'חומוס מבושל', amount: 'כוס', category: 'קטניות ודגנים' },
+      { name: 'צימוקים', amount: 'חצי כוס', category: 'פירות' },
+      { name: 'חריסה', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'כמון', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+    ],
+    'חציל': [
+      { name: 'חציל', amount: '3 יחידות', category: 'ירקות' },
+      { name: 'טחינה גולמית', amount: 'חצי כוס', category: 'מוצרי יסוד' },
+      { name: 'שום', amount: '3 שיניים', category: 'ירקות' },
+      { name: 'לימון', amount: '1 יחידה', category: 'פירות' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'פטרוזיליה', amount: 'חופן', category: 'ירקות' },
+      { name: 'מלח', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'כנאפה': [
+      { name: 'קדאיף', amount: '500 גרם', category: 'מוצרי יסוד' },
+      { name: 'גבינת עכאווי', amount: '400 גרם', category: 'חלב וביצים' },
+      { name: 'חמאה', amount: '200 גרם', category: 'חלב וביצים' },
+      { name: 'סוכר', amount: 'כוס', category: 'מוצרי יסוד' },
+      { name: 'מי ורדים', amount: '2 כפות', category: 'מוצרי יסוד' },
+      { name: 'לימון', amount: 'חצי', category: 'פירות' },
+      { name: 'פיסטוקים', amount: 'רבע כוס', category: 'אגוזים' },
+    ],
+    'מוסקה': [
+      { name: 'חציל', amount: '3 יחידות', category: 'ירקות' },
+      { name: 'בשר טחון', amount: '500 גרם', category: 'בשר ועוף' },
+      { name: 'בצל', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'רסק עגבניות', amount: 'פחית', category: 'שימורים' },
+      { name: 'שמנת מתוקה', amount: 'כוס', category: 'חלב וביצים' },
+      { name: 'ביצים', amount: '2 יחידות', category: 'חלב וביצים' },
+      { name: 'אגוז מוסקט', amount: 'קמצוץ', category: 'שמנים ותבלינים' },
+      { name: 'שמן זית', amount: '4 כפות', category: 'שמנים ותבלינים' },
+    ],
+    'מלווח': [
+      { name: 'קמח', amount: '4 כוסות', category: 'מוצרי יסוד' },
+      { name: 'מים', amount: 'כוס וחצי', category: 'מוצרי יסוד' },
+      { name: 'סוכר', amount: 'כף', category: 'מוצרי יסוד' },
+      { name: 'מלח', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'שמרים יבשים', amount: 'כפית', category: 'מוצרי יסוד' },
+      { name: 'מרגרינה', amount: '200 גרם', category: 'חלב וביצים' },
+      { name: 'ביצה', amount: '1 יחידה', category: 'חלב וביצים' },
+    ],
+    'ג\'חנון': [
+      { name: 'קמח', amount: '4 כוסות', category: 'מוצרי יסוד' },
+      { name: 'מים', amount: 'כוס וחצי', category: 'מוצרי יסוד' },
+      { name: 'סוכר', amount: '2 כפות', category: 'מוצרי יסוד' },
+      { name: 'מלח', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'חמאה', amount: '150 גרם', category: 'חלב וביצים' },
+      { name: 'דבש', amount: 'כף', category: 'מוצרי יסוד' },
+      { name: 'ביצים לגריסה', amount: '6 יחידות', category: 'חלב וביצים' },
+    ],
+    'סביח': [
+      { name: 'חציל', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'ביצים קשות', amount: '2 יחידות', category: 'חלב וביצים' },
+      { name: 'טחינה גולמית', amount: 'חצי כוס', category: 'מוצרי יסוד' },
+      { name: 'עגבנייה', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'מלפפון', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'פיתה', amount: '2 יחידות', category: 'מוצרי יסוד' },
+      { name: 'אמבה', amount: '2 כפות', category: 'רטבים' },
+      { name: 'חריף', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'פיצה': [
+      { name: 'קמח', amount: '3 כוסות', category: 'מוצרי יסוד' },
+      { name: 'שמרים יבשים', amount: 'כפית', category: 'מוצרי יסוד' },
+      { name: 'רוטב עגבניות', amount: 'כוס', category: 'שימורים' },
+      { name: 'מוצרלה', amount: '300 גרם', category: 'חלב וביצים' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'בזיליקום', amount: 'חופן', category: 'ירקות' },
+      { name: 'מלח', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'סוכר', amount: 'כפית', category: 'מוצרי יסוד' },
+    ],
+    'טאקו': [
+      { name: 'טורטייה', amount: '8 יחידות', category: 'מוצרי יסוד' },
+      { name: 'בשר טחון', amount: '400 גרם', category: 'בשר ועוף' },
+      { name: 'בצל', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'עגבנייה', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'אבוקדו', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'לימון', amount: '1 יחידה', category: 'פירות' },
+      { name: 'כוסברה', amount: 'חופן', category: 'ירקות' },
+      { name: 'פפריקה מעושנת', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'כמון', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'סושי': [
+      { name: 'אורז סושי', amount: '2 כוסות', category: 'קטניות ודגנים' },
+      { name: 'דפי נורי', amount: '10 יחידות', category: 'מוצרי יסוד' },
+      { name: 'סלמון טרי', amount: '300 גרם', category: 'דגים' },
+      { name: 'אבוקדו', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'מלפפון', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'חומץ אורז', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'רוטב סויה', amount: '50 מ"ל', category: 'רטבים' },
+      { name: 'וואסבי', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'קארי': [
+      { name: 'חזה עוף', amount: '500 גרם', category: 'בשר ועוף' },
+      { name: 'חלב קוקוס', amount: 'פחית', category: 'שימורים' },
+      { name: 'משחת קארי', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'בצל', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'שום', amount: '4 שיניים', category: 'ירקות' },
+      { name: 'ג\'ינג\'ר', amount: 'כף טרי', category: 'ירקות' },
+      { name: 'פלפל אדום', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'אורז', amount: '2 כוסות', category: 'קטניות ודגנים' },
+      { name: 'כוסברה', amount: 'חופן', category: 'ירקות' },
+    ],
+    'שווארמה': [
+      { name: 'חזה הודו', amount: '700 גרם', category: 'בשר ועוף' },
+      { name: 'בצל', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'טחינה', amount: 'חצי כוס', category: 'מוצרי יסוד' },
+      { name: 'פיתה', amount: '4 יחידות', category: 'מוצרי יסוד' },
+      { name: 'כורכום', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'כמון', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'פפריקה', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'חומץ', amount: 'כף', category: 'שמנים ותבלינים' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+    ],
+    'קובה': [
+      { name: 'בורגול דק', amount: '2 כוסות', category: 'קטניות ודגנים' },
+      { name: 'בשר טחון', amount: '400 גרם', category: 'בשר ועוף' },
+      { name: 'בצל', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'צנוברים', amount: 'רבע כוס', category: 'אגוזים' },
+      { name: 'בהרט', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'כמון', amount: 'חצי כפית', category: 'שמנים ותבלינים' },
+      { name: 'מלח ופלפל', amount: 'לפי הטעם', category: 'שמנים ותבלינים' },
+      { name: 'שמן לטיגון', amount: 'לפי הצורך', category: 'שמנים ותבלינים' },
+    ],
+    'מג\'דרה': [
+      { name: 'אורז', amount: '2 כוסות', category: 'קטניות ודגנים' },
+      { name: 'עדשים ירוקות', amount: 'כוס', category: 'קטניות ודגנים' },
+      { name: 'בצל', amount: '4 יחידות', category: 'ירקות' },
+      { name: 'שמן זית', amount: 'חצי כוס', category: 'שמנים ותבלינים' },
+      { name: 'כמון', amount: 'כפית', category: 'שמנים ותבלינים' },
+      { name: 'מלח', amount: 'כפית', category: 'שמנים ותבלינים' },
+    ],
+    'פריטטה': [
+      { name: 'ביצים', amount: '8 יחידות', category: 'חלב וביצים' },
+      { name: 'תפוחי אדמה', amount: '2 יחידות', category: 'ירקות' },
+      { name: 'בצל', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'פלפל אדום', amount: '1 יחידה', category: 'ירקות' },
+      { name: 'גבינה צהובה', amount: 'כוס מגוררת', category: 'חלב וביצים' },
+      { name: 'שמן זית', amount: '3 כפות', category: 'שמנים ותבלינים' },
+      { name: 'מלח ופלפל', amount: 'לפי הטעם', category: 'שמנים ותבלינים' },
+      { name: 'פטרוזיליה', amount: 'חופן', category: 'ירקות' },
+    ],
   };
 
   // Find matching ingredients
@@ -327,38 +586,32 @@ export function comparePrices(ingredients) {
 
 function getBasePrice(ingredientName) {
   const prices = {
-    'חזה עוף': 35,
-    'ביצים': 12,
-    'פירורי לחם': 8,
-    'קמח': 5,
-    'שמן לטיגון': 15,
-    'מלח': 3,
-    'פלפל שחור': 6,
-    'פפריקה': 5,
-    'גרגירי חומוס': 12,
-    'טחינה גולמית': 18,
-    'לימון': 4,
-    'שום': 5,
-    'שמן זית': 22,
-    'כמון': 7,
-    'סודה לשתייה': 4,
-    'עגבניות': 8,
-    'בצל': 4,
-    'פלפל חריף': 3,
-    'רסק עגבניות': 6,
-    'פפריקה מתוקה': 5,
-    'מלח ופלפל': 5,
-    'פסטה': 10,
-    'שמנת מתוקה': 12,
-    'פרמזן': 25,
-    'פטריות': 15,
-    'בזיליקום טרי': 8,
-    'שוקולד מריר': 18,
-    'חמאה': 14,
-    'סוכר': 6,
-    'אבקת אפייה': 4,
-    'קקאו': 12,
-    'תמצית וניל': 8,
+    'חזה עוף': 35, 'ביצים': 12, 'פירורי לחם': 8, 'קמח': 5,
+    'שמן לטיגון': 15, 'מלח': 3, 'פלפל שחור': 6, 'פפריקה': 5,
+    'גרגירי חומוס': 12, 'טחינה גולמית': 18, 'לימון': 4, 'שום': 5,
+    'שמן זית': 22, 'כמון': 7, 'סודה לשתייה': 4, 'עגבניות': 8,
+    'בצל': 4, 'פלפל חריף': 3, 'רסק עגבניות': 6, 'פפריקה מתוקה': 5,
+    'מלח ופלפל': 5, 'פסטה': 10, 'שמנת מתוקה': 12, 'פרמזן': 25,
+    'פטריות': 15, 'בזיליקום טרי': 8, 'שוקולד מריר': 18, 'חמאה': 14,
+    'סוכר': 6, 'אבקת אפייה': 4, 'קקאו': 12, 'תמצית וניל': 8,
+    'פטרוזיליה': 5, 'כוסברה': 5, 'כורכום': 7, 'שמן לטיגון עמוק': 18,
+    'עוף שלם': 45, 'גזר': 5, 'סלרי': 6, 'שורש פטרוזיליה': 4,
+    'אטריות': 8, 'דפי לזניה': 12, 'בשר טחון': 40, 'מוצרלה': 20,
+    'רוטב בשמל': 15, 'אורגנו': 6, 'חסה רומית': 10, 'קרוטונים': 8,
+    'אנשובי': 18, 'חרדל דיז\'ון': 12, 'מיץ לימון': 6, 'בצק עלים': 15,
+    'גבינה בולגרית': 12, 'תפוחי אדמה': 6, 'שמיר': 5, 'שומשום': 8,
+    'קוסקוס': 10, 'חומוס מבושל': 8, 'צימוקים': 10, 'חריסה': 12,
+    'קישוא': 6, 'חציל': 7, 'קדאיף': 20, 'גבינת עכאווי': 30,
+    'מי ורדים': 10, 'פיסטוקים': 35, 'אגוז מוסקט': 10, 'מרגרינה': 10,
+    'שמרים יבשים': 4, 'ביצה': 4, 'דבש': 15, 'ביצים לגריסה': 12,
+    'ביצים קשות': 8, 'עגבנייה': 4, 'מלפפון': 3, 'פיתה': 5,
+    'אמבה': 12, 'חריף': 6, 'רוטב עגבניות': 8, 'בזיליקום': 8,
+    'טורטייה': 15, 'אבוקדו': 8, 'פפריקה מעושנת': 10, 'אורז סושי': 18,
+    'דפי נורי': 15, 'סלמון טרי': 55, 'חומץ אורז': 12, 'רוטב סויה': 10,
+    'וואסבי': 15, 'חלב קוקוס': 12, 'משחת קארי': 18, 'ג\'ינג\'ר': 6,
+    'פלפל אדום': 5, 'אורז': 8, 'חזה הודו': 35, 'טחינה': 18,
+    'חומץ': 6, 'בורגול דק': 10, 'צנוברים': 40, 'בהרט': 8,
+    'עדשים ירוקות': 10, 'גבינה צהובה': 15,
   };
 
   return prices[ingredientName] || 8 + Math.random() * 10;
