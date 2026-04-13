@@ -187,7 +187,7 @@ export default function RecipeDetailPage() {
               מרכיבים ({ingredients.ingredients.length})
             </button>
           )}
-          {ingredients?.steps && (
+          {ingredients?.steps?.length > 0 && (
             <button
               onClick={() => setActiveTab('steps')}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
