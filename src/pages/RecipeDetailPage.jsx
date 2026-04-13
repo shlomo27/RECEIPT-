@@ -187,6 +187,18 @@ export default function RecipeDetailPage() {
               מרכיבים ({ingredients.ingredients.length})
             </button>
           )}
+          {ingredients?.steps && (
+            <button
+              onClick={() => setActiveTab('steps')}
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                activeTab === 'steps'
+                  ? 'bg-white text-gray-800 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              הוראות הכנה
+            </button>
+          )}
           {priceData && (
             <button
               onClick={() => setActiveTab('prices')}
@@ -209,6 +221,27 @@ export default function RecipeDetailPage() {
           recipeTitle={ingredients.recipeTitle}
           onComparePrices={handleComparePrices}
         />
+      )}
+
+      {activeTab === 'steps' && ingredients?.steps && (
+        <div className="card p-6 animate-fade-in">
+          <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <svg className="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            הוראות הכנה - {ingredients.recipeTitle}
+          </h3>
+          <ol className="space-y-4">
+            {ingredients.steps.map((step, idx) => (
+              <li key={idx} className="flex gap-3">
+                <span className="shrink-0 w-7 h-7 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm font-bold">
+                  {idx + 1}
+                </span>
+                <p className="text-gray-700 leading-relaxed pt-0.5">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
 
       {activeTab === 'prices' && priceData && (

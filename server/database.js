@@ -57,9 +57,16 @@ export function addSearchHistory(userId, query) {
 
 export function getSearchHistory(userId, limit = 20) {
   const db = readDB();
+  const seen = new Set();
   return db.searchHistory
     .filter(h => h.userId === userId)
     .sort((a, b) => new Date(b.searchedAt) - new Date(a.searchedAt))
+    .filter(h => {
+      const key = h.query.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
     .slice(0, limit)
     .map(h => ({ query: h.query, searched_at: h.searchedAt }));
 }

@@ -17,7 +17,7 @@ import {
   getShoppingLists,
   deleteShoppingList,
 } from './database.js';
-import { searchRecipes, extractIngredients, comparePrices } from './recipeSearch.js';
+import { searchRecipes, extractIngredients, extractSteps, comparePrices } from './recipeSearch.js';
 
 const app = express();
 const PORT = 3001;
@@ -101,6 +101,7 @@ app.post('/api/ingredients', (req, res) => {
   try {
     const { recipeTitle, recipeUrl } = req.body;
     const ingredients = extractIngredients(recipeTitle);
+    const steps = extractSteps(recipeTitle);
 
     // Save to DB
     saveIngredientList(req.userId, recipeUrl, recipeTitle, ingredients);
@@ -108,6 +109,7 @@ app.post('/api/ingredients', (req, res) => {
     res.json({
       recipeTitle,
       ingredients,
+      steps,
       categories: [...new Set(ingredients.map(i => i.category))],
     });
   } catch (error) {
