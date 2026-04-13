@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred }) {
+export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred, isFavorite, onToggleFavorite }) {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleClick = () => {
@@ -29,7 +29,22 @@ export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred
         </div>
       )}
 
-      <div className="p-5">
+      <div className="p-5 relative">
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onToggleFavorite(recipe); }}
+            className={`absolute top-3 left-3 p-1.5 rounded-full transition-all z-10 ${
+              isFavorite
+                ? 'text-red-500 hover:text-red-600 bg-red-50'
+                : 'text-gray-300 hover:text-red-400 hover:bg-red-50'
+            }`}
+            title={isFavorite ? 'הסר מהמועדפים' : 'הוסף למועדפים'}
+          >
+            <svg className="w-5 h-5" fill={isFavorite ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        )}
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex-1">
             <h3 className="font-bold text-gray-800 text-lg leading-tight mb-1 line-clamp-2">

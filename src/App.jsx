@@ -3,6 +3,8 @@ import Header from './components/Header';
 import SearchPage from './pages/SearchPage';
 import RecipeDetailPage from './pages/RecipeDetailPage';
 import HistoryPage from './pages/HistoryPage';
+import FavoritesPage from './pages/FavoritesPage';
+import ShoppingListsPage from './pages/ShoppingListsPage';
 
 export default function App() {
   return (
@@ -13,6 +15,8 @@ export default function App() {
           <Route path="/" element={<SearchPage />} />
           <Route path="/recipe" element={<RecipeDetailPage />} />
           <Route path="/history" element={<HistoryPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/shopping-lists" element={<ShoppingListsPage />} />
         </Routes>
       </main>
     </div>
