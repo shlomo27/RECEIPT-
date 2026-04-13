@@ -15,6 +15,14 @@ export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred
     'מתקדם': 'bg-red-100 text-red-700',
   };
 
+  const platformStyles = {
+    tiktok: { bg: 'bg-black', text: 'text-white', icon: '🎵', label: 'TikTok' },
+    instagram: { bg: 'bg-gradient-to-r from-purple-500 to-pink-500', text: 'text-white', icon: '📸', label: 'Instagram' },
+    youtube: { bg: 'bg-red-600', text: 'text-white', icon: '▶️', label: 'YouTube' },
+  };
+
+  const platform = recipe.platform ? platformStyles[recipe.platform] : null;
+
   return (
     <div
       className={`card cursor-pointer animate-fade-in ${isPreferred ? 'ring-2 ring-brand-400 ring-offset-2' : ''}`}
@@ -22,10 +30,22 @@ export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isPreferred && (
+      {isPreferred && !platform && (
         <div className="bg-gradient-to-l from-brand-500 to-brand-400 text-white text-xs font-medium px-3 py-1 flex items-center gap-1">
           <span>⭐</span>
           <span>מומלץ עבורך</span>
+        </div>
+      )}
+      {platform && (
+        <div className={`${platform.bg} ${platform.text} text-xs font-medium px-3 py-1 flex items-center justify-between`}>
+          <div className="flex items-center gap-1">
+            <span>{platform.icon}</span>
+            <span>{platform.label}</span>
+            {recipe.contentType === 'video' && <span className="mr-1">| סרטון</span>}
+          </div>
+          {recipe.views && (
+            <span className="opacity-80">{recipe.views} צפיות</span>
+          )}
         </div>
       )}
 
@@ -50,8 +70,11 @@ export default function RecipeCard({ recipe, onSelect, onTrackClick, isPreferred
             <h3 className="font-bold text-gray-800 text-lg leading-tight mb-1 line-clamp-2">
               {recipe.title}
             </h3>
-            <p className="text-sm text-brand-500 font-medium">
+            <p className={`text-sm font-medium ${platform ? 'text-gray-500' : 'text-brand-500'}`}>
               {recipe.siteName}
+              {recipe.chefName?.startsWith('@') && (
+                <span className="text-gray-400 mr-1"> | {recipe.chefName}</span>
+              )}
             </p>
           </div>
           <div className="flex items-center gap-1 text-amber-500 shrink-0">

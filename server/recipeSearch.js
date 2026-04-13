@@ -15,6 +15,11 @@ const RECIPE_SITES = {
   'myvegan.co.il': { name: 'מאי ויגן', hebrewName: 'מאי ויגן' },
   '10dakot.co.il': { name: '10 דקות', hebrewName: '10 דקות' },
   'al-hashulchan.co.il': { name: 'על השולחן', hebrewName: 'על השולחן' },
+  'tiktok.com': { name: 'TikTok', hebrewName: 'טיקטוק' },
+  'instagram.com': { name: 'Instagram', hebrewName: 'אינסטגרם' },
+  'youtube.com': { name: 'YouTube', hebrewName: 'יוטיוב' },
+  'facebook.com': { name: 'Facebook', hebrewName: 'פייסבוק' },
+  'pinterest.com': { name: 'Pinterest', hebrewName: 'פינטרסט' },
 };
 
 function getSiteName(url) {
@@ -175,7 +180,112 @@ function generateSearchResults(query) {
     },
   ];
 
-  return recipeSites;
+  // Social media / video results
+  const socialResults = [
+    {
+      title: `${query} מושלם בדקה! 🔥 | TikTok`,
+      url: `https://www.tiktok.com/@chef_israel/video/${encodeURIComponent(query)}`,
+      snippet: `סרטון ויראלי עם 2.5M צפיות! מתכון ל${query} ב-60 שניות. קל, מהיר ומטורף!`,
+      siteName: 'TikTok',
+      siteUrl: 'https://www.tiktok.com',
+      chefName: '@chef_israel',
+      rating: 4.9,
+      cookTime: '15 דקות',
+      difficulty: 'קל',
+      image: null,
+      contentType: 'video',
+      platform: 'tiktok',
+      views: '2.5M',
+    },
+    {
+      title: `הסוד ל${query} הכי טוב | Instagram Reel`,
+      url: `https://www.instagram.com/reel/${encodeURIComponent(query)}`,
+      snippet: `ריל שכולם שיתפו! 🎬 הטריק שישנה לכם את ה${query} לנצח. 850K לייקים.`,
+      siteName: 'Instagram',
+      siteUrl: 'https://www.instagram.com',
+      chefName: '@cooking.with.noa',
+      rating: 4.8,
+      cookTime: '20 דקות',
+      difficulty: 'קל',
+      image: null,
+      contentType: 'video',
+      platform: 'instagram',
+      views: '850K',
+    },
+    {
+      title: `מתכון ${query} - המדריך המלא | YouTube`,
+      url: `https://www.youtube.com/watch?v=${encodeURIComponent(query)}`,
+      snippet: `סרטון מפורט עם כל השלבים. 1.2M צפיות. ההסבר הכי טוב ברשת ל${query} ביתי ומושלם.`,
+      siteName: 'YouTube',
+      siteUrl: 'https://www.youtube.com',
+      chefName: 'המטבח של עידן',
+      rating: 4.9,
+      cookTime: '35 דקות',
+      difficulty: 'בינוני',
+      image: null,
+      contentType: 'video',
+      platform: 'youtube',
+      views: '1.2M',
+    },
+    {
+      title: `${query} טבעוני ומטריף 🌱 | TikTok`,
+      url: `https://www.tiktok.com/@vegan_il/video/${encodeURIComponent(query)}_vegan`,
+      snippet: `גרסה טבעונית ל${query} שתפסה את הטיקטוק! 500K צפיות. בלי מוצרים מן החי ועדיין טעים.`,
+      siteName: 'TikTok',
+      siteUrl: 'https://www.tiktok.com',
+      chefName: '@vegan_il',
+      rating: 4.6,
+      cookTime: '25 דקות',
+      difficulty: 'קל',
+      image: null,
+      contentType: 'video',
+      platform: 'tiktok',
+      views: '500K',
+    },
+    {
+      title: `${query} ב-3 רמות קושי | YouTube`,
+      url: `https://www.youtube.com/watch?v=${encodeURIComponent(query)}_levels`,
+      snippet: `שף מקצועי מכין ${query} ברמת מתחיל, בינוני ומתקדם. 900K צפיות. איזה רמה אתם?`,
+      siteName: 'YouTube',
+      siteUrl: 'https://www.youtube.com',
+      chefName: 'שף אורן',
+      rating: 4.7,
+      cookTime: '45 דקות',
+      difficulty: 'מתקדם',
+      image: null,
+      contentType: 'video',
+      platform: 'youtube',
+      views: '900K',
+    },
+    {
+      title: `הטרנד החדש: ${query} 😍 | Instagram`,
+      url: `https://www.instagram.com/p/${encodeURIComponent(query)}_trend`,
+      snippet: `הפוסט שכבש את האינסטגרם! מתכון ל${query} עם טוויסט מיוחד. 320K לייקים ו-5K תגובות.`,
+      siteName: 'Instagram',
+      siteUrl: 'https://www.instagram.com',
+      chefName: '@foodie_tlv',
+      rating: 4.5,
+      cookTime: '30 דקות',
+      difficulty: 'בינוני',
+      image: null,
+      contentType: 'video',
+      platform: 'instagram',
+      views: '320K',
+    },
+  ];
+
+  // Mix social results with traditional results
+  const mixed = [];
+  let siteIdx = 0;
+  let socialIdx = 0;
+  // Pattern: 2 sites, 1 social, 2 sites, 1 social...
+  while (siteIdx < recipeSites.length || socialIdx < socialResults.length) {
+    if (siteIdx < recipeSites.length) mixed.push(recipeSites[siteIdx++]);
+    if (siteIdx < recipeSites.length) mixed.push(recipeSites[siteIdx++]);
+    if (socialIdx < socialResults.length) mixed.push(socialResults[socialIdx++]);
+  }
+
+  return mixed;
 }
 
 // Generate personalized recommendations based on user preferences
