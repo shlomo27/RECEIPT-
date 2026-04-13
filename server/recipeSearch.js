@@ -180,15 +180,16 @@ function generateSearchResults(query) {
     },
   ];
 
-  // Social media / video results
+  // Social media / video results - URLs point to real search pages
+  const searchQuery = encodeURIComponent(`מתכון ${query}`);
   const socialResults = [
     {
       title: `${query} מושלם בדקה! 🔥 | TikTok`,
-      url: `https://www.tiktok.com/@chef_israel/video/${encodeURIComponent(query)}`,
-      snippet: `סרטון ויראלי עם 2.5M צפיות! מתכון ל${query} ב-60 שניות. קל, מהיר ומטורף!`,
+      url: `https://www.tiktok.com/search?q=${searchQuery}`,
+      snippet: `סרטוני ${query} פופולריים בטיקטוק! מתכונים קצרים וויראליים ב-60 שניות.`,
       siteName: 'TikTok',
       siteUrl: 'https://www.tiktok.com',
-      chefName: '@chef_israel',
+      chefName: '@tiktok_recipes',
       rating: 4.9,
       cookTime: '15 דקות',
       difficulty: 'קל',
@@ -198,12 +199,12 @@ function generateSearchResults(query) {
       views: '2.5M',
     },
     {
-      title: `הסוד ל${query} הכי טוב | Instagram Reel`,
-      url: `https://www.instagram.com/reel/${encodeURIComponent(query)}`,
-      snippet: `ריל שכולם שיתפו! 🎬 הטריק שישנה לכם את ה${query} לנצח. 850K לייקים.`,
+      title: `הסוד ל${query} הכי טוב | Instagram Reels`,
+      url: `https://www.instagram.com/explore/tags/${encodeURIComponent(query)}/`,
+      snippet: `ריסים ופוסטים של ${query} באינסטגרם! עקבו אחרי הטרנדים החמים ביותר.`,
       siteName: 'Instagram',
       siteUrl: 'https://www.instagram.com',
-      chefName: '@cooking.with.noa',
+      chefName: '@instagram_food',
       rating: 4.8,
       cookTime: '20 דקות',
       difficulty: 'קל',
@@ -214,11 +215,11 @@ function generateSearchResults(query) {
     },
     {
       title: `מתכון ${query} - המדריך המלא | YouTube`,
-      url: `https://www.youtube.com/watch?v=${encodeURIComponent(query)}`,
-      snippet: `סרטון מפורט עם כל השלבים. 1.2M צפיות. ההסבר הכי טוב ברשת ל${query} ביתי ומושלם.`,
+      url: `https://www.youtube.com/results?search_query=${searchQuery}`,
+      snippet: `סרטוני ${query} מפורטים עם הסבר שלב אחר שלב. הסרטונים הכי טובים ביוטיוב.`,
       siteName: 'YouTube',
       siteUrl: 'https://www.youtube.com',
-      chefName: 'המטבח של עידן',
+      chefName: 'YouTube Recipes',
       rating: 4.9,
       cookTime: '35 דקות',
       difficulty: 'בינוני',
@@ -229,11 +230,11 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} טבעוני ומטריף 🌱 | TikTok`,
-      url: `https://www.tiktok.com/@vegan_il/video/${encodeURIComponent(query)}_vegan`,
-      snippet: `גרסה טבעונית ל${query} שתפסה את הטיקטוק! 500K צפיות. בלי מוצרים מן החי ועדיין טעים.`,
+      url: `https://www.tiktok.com/search?q=${encodeURIComponent(`${query} טבעוני`)}`,
+      snippet: `גרסאות טבעוניות ל${query} שתפסו את הטיקטוק! בלי מוצרים מן החי ועדיין טעים.`,
       siteName: 'TikTok',
       siteUrl: 'https://www.tiktok.com',
-      chefName: '@vegan_il',
+      chefName: '@vegan_tiktok',
       rating: 4.6,
       cookTime: '25 דקות',
       difficulty: 'קל',
@@ -244,11 +245,11 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} ב-3 רמות קושי | YouTube`,
-      url: `https://www.youtube.com/watch?v=${encodeURIComponent(query)}_levels`,
-      snippet: `שף מקצועי מכין ${query} ברמת מתחיל, בינוני ומתקדם. 900K צפיות. איזה רמה אתם?`,
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${query} מתכון קל`)}`,
+      snippet: `שפים מכינים ${query} ברמות שונות. מתחילים ועד מתקדמים - מצאו את הסרטון שלכם!`,
       siteName: 'YouTube',
       siteUrl: 'https://www.youtube.com',
-      chefName: 'שף אורן',
+      chefName: 'YouTube Chefs',
       rating: 4.7,
       cookTime: '45 דקות',
       difficulty: 'מתקדם',
@@ -259,8 +260,8 @@ function generateSearchResults(query) {
     },
     {
       title: `הטרנד החדש: ${query} 😍 | Instagram`,
-      url: `https://www.instagram.com/p/${encodeURIComponent(query)}_trend`,
-      snippet: `הפוסט שכבש את האינסטגרם! מתכון ל${query} עם טוויסט מיוחד. 320K לייקים ו-5K תגובות.`,
+      url: `https://www.instagram.com/explore/tags/${encodeURIComponent(query + '_recipe')}/`,
+      snippet: `הטרנדים החמים ביותר של ${query} באינסטגרם! מתכונים עם טוויסט מיוחד.`,
       siteName: 'Instagram',
       siteUrl: 'https://www.instagram.com',
       chefName: '@foodie_tlv',
