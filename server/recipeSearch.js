@@ -82,8 +82,20 @@ const RECIPE_META = {
 // Simulated search results (in production, use a real search API like Google Custom Search or Bing)
 // This provides realistic demo data
 function generateSearchResults(query) {
-  // Generate food image URL using loremflickr
-  const getImage = (keyword) => `https://loremflickr.com/400/300/${encodeURIComponent(keyword)},food`;
+  // Map Hebrew recipe names to English for image search
+  const imageKeywords = {
+    'שניצל': 'schnitzel', 'חומוס': 'hummus', 'שקשוקה': 'shakshuka',
+    'פסטה': 'pasta', 'עוגת שוקולד': 'chocolate+cake', 'פלאפל': 'falafel',
+    'מרק עוף': 'chicken+soup', 'לזניה': 'lasagna', 'סלט קיסר': 'caesar+salad',
+    'בורקס': 'bourekas', 'קוסקוס': 'couscous', 'חציל': 'eggplant',
+    'כנאפה': 'kunafa', 'מוסקה': 'moussaka', 'מלווח': 'malawach',
+    "ג'חנון": 'jachnun', 'סביח': 'sabich+pita', 'פיצה': 'pizza',
+    'טאקו': 'taco', 'סושי': 'sushi', 'קארי': 'curry',
+    'שווארמה': 'shawarma', 'קובה': 'kibbeh', "מג'דרה": 'mujaddara',
+    'פריטטה': 'frittata', 'המבורגר': 'hamburger',
+  };
+  const engKeyword = imageKeywords[query] || 'food+recipe';
+  const getImage = () => `https://loremflickr.com/400/300/${engKeyword}`;
 
   const recipeSites = [
     {
@@ -96,7 +108,7 @@ function generateSearchResults(query) {
       rating: 4.8,
       cookTime: '45 דקות',
       difficulty: 'בינוני',
-      image: getImage(query),
+      image: getImage(),
     },
     {
       title: `מתכון ${query} של השולחן | קל וטעים`,
@@ -108,7 +120,7 @@ function generateSearchResults(query) {
       rating: 4.6,
       cookTime: '60 דקות',
       difficulty: 'קל',
-      image: getImage(query + ' recipe'),
+      image: getImage(),
     },
     {
       title: `Best ${query} Recipe - Food Network`,
@@ -120,7 +132,7 @@ function generateSearchResults(query) {
       rating: 4.9,
       cookTime: '30 דקות',
       difficulty: 'מתקדם',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
     {
       title: `${query} Recipe | AllRecipes`,
@@ -132,7 +144,7 @@ function generateSearchResults(query) {
       rating: 4.5,
       cookTime: '50 דקות',
       difficulty: 'קל',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
     {
       title: `מתכון ${query} מהיר וקל | 10 דקות`,
@@ -144,7 +156,7 @@ function generateSearchResults(query) {
       rating: 4.3,
       cookTime: '10 דקות',
       difficulty: 'קל מאוד',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
     {
       title: `${query} - Bon Appétit`,
@@ -156,7 +168,7 @@ function generateSearchResults(query) {
       rating: 4.7,
       cookTime: '40 דקות',
       difficulty: 'בינוני',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
     {
       title: `${query} מסורתי | על השולחן`,
@@ -168,7 +180,7 @@ function generateSearchResults(query) {
       rating: 4.4,
       cookTime: '55 דקות',
       difficulty: 'בינוני',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
     {
       title: `Easy ${query} | Simply Recipes`,
@@ -180,7 +192,7 @@ function generateSearchResults(query) {
       rating: 4.6,
       cookTime: '35 דקות',
       difficulty: 'קל',
-      image: getImage(query + ' cooking'),
+      image: getImage(),
     },
   ];
 
