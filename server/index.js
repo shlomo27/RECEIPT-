@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
-import { searchYouTube, searchTikTok } from './youtube.js';
+import { searchYouTube, searchTikTok, searchInstagram } from './youtube.js';
 import {
   addSearchHistory,
   getSearchHistory,
@@ -49,14 +49,15 @@ app.post('/api/search', async (req, res) => {
     const preferences = getUserPreferences(req.userId);
 
     // Search sites and YouTube in parallel
-    const [siteResults, youtubeResults, tiktokResults] = await Promise.all([
+    const [siteResults, youtubeResults, tiktokResults, instagramResults] = await Promise.all([
       Promise.resolve(searchRecipes(trimmedQuery, preferences, filters || {})),
       searchYouTube(trimmedQuery, 3),
       searchTikTok(trimmedQuery),
+      Promise.resolve(searchInstagram(trimmedQuery)),
     ]);
 
     // Mix: site results first, then video results
-    const allResults = [...siteResults.results, ...youtubeResults, ...tiktokResults];
+    const allResults = [...siteResults.results, ...youtubeResults, ...tiktokResults, ...instagramResults];
 
     res.json({
       ...siteResults,

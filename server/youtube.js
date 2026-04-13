@@ -78,3 +78,23 @@ export async function searchTikTok(query) {
     },
   ];
 }
+
+export function searchInstagram(query) {
+  const tag = query.replace(/\s+/g, '');
+  return [
+    {
+      title: `${query} - ריסים ופוסטים | Instagram`,
+      url: `https://www.instagram.com/explore/tags/${encodeURIComponent(tag)}/`,
+      snippet: `מתכוני ${query} באינסטגרם - ריסים, תמונות וסרטונים מהשפים הכי פופולריים`,
+      siteName: 'Instagram',
+      siteUrl: 'https://www.instagram.com',
+      chefName: 'Instagram',
+      rating: 4.8,
+      cookTime: 'ריסים ופוסטים',
+      difficulty: 'סרטון',
+      image: null,
+      contentType: 'video',
+      platform: 'instagram',
+    },
+  ];
+}
