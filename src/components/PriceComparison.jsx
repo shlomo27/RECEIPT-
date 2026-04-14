@@ -155,14 +155,16 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
               </button>
             </div>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-800">
-              <p className="font-bold mb-1">⚠️ הערה חשובה</p>
-              <p>אתרי הסופר לא מאפשרים הוספה אוטומטית לעגלה. התהליך:</p>
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3 mb-4 text-sm text-green-800">
+              <p className="font-bold mb-1">💡 איך זה עובד?</p>
+              <p>נפתח טאב נפרד לכל מוצר באתר {orderModal.name} עם חיפוש מוכן. התהליך:</p>
               <ol className="list-decimal mr-5 mt-1">
-                <li>נעתיק את רשימת הקניות שלך</li>
-                <li>נפתח את אתר {orderModal.name}</li>
-                <li>תחפש כל מוצר ותוסיף לעגלה</li>
+                <li>נלחץ על הכפתור הכחול</li>
+                <li>כל מוצר יפתח בטאב נפרד עם חיפוש</li>
+                <li>תלחץ "הוסף לעגלה" בכל טאב</li>
+                <li>תעבור לעגלה, תתחבר ותשלם</li>
               </ol>
+              <p className="mt-2 text-xs">💡 טיפ: ודא שהדפדפן מאפשר חלונות קופצים לאתר שלנו</p>
             </div>
 
             <h4 className="font-bold text-gray-700 mb-2">רשימת הקניות שלך:</h4>
@@ -182,21 +184,45 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => {
-                  const text = orderModal.items.map(i => `${i.name} - ${i.amount}`).join('\n');
-                  navigator.clipboard.writeText(text).then(() => {
-                    alert('הרשימה הועתקה! עכשיו פותח את אתר ' + orderModal.name);
-                    if (orderModal.orderUrl) {
-                      window.open(orderModal.orderUrl.split('?')[0], '_blank');
-                    }
-                  }).catch(() => {
-                    if (orderModal.orderUrl) {
-                      window.open(orderModal.orderUrl.split('?')[0], '_blank');
-                    }
+                  // Open a separate search tab for each product
+                  const searchUrls = {
+                    'שופרסל': 'https://www.shufersal.co.il/online/he/search/results?q=',
+                    'רמי לוי': 'https://www.rframi-levy.co.il/he/online/search?q=',
+                    'יינות ביתן': 'https://www.ybitan.co.il/search?q=',
+                    'חצי חינם': 'https://www.hazi-hinam.co.il/search?q=',
+                    'מגה': 'https://www.mega.co.il/search?q=',
+                  };
+                  const baseUrl = searchUrls[orderModal.name];
+                  if (!baseUrl) {
+                    alert('אתר החנות לא תומך בחיפוש ישיר');
+                    return;
+                  }
+                  const proceed = confirm(
+                    `זה יפתח ${orderModal.items.length} טאבים חדשים - אחד לכל מוצר באתר ${orderModal.name}.\nהמשך?`
+                  );
+                  if (!proceed) return;
+                  // Open first tab immediately
+                  orderModal.items.forEach((item, idx) => {
+                    setTimeout(() => {
+                      window.open(baseUrl + encodeURIComponent(item.name), '_blank');
+                    }, idx * 300); // 300ms delay to avoid popup blocker
                   });
+                  setOrderModal(null);
                 }}
                 className="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2"
               >
-                📋 העתק רשימה ופתח את {orderModal.name}
+                🚀 פתח כל מוצר באתר {orderModal.name} ({orderModal.items.length} טאבים)
+              </button>
+              <button
+                onClick={() => {
+                  const text = orderModal.items.map(i => `${i.name} - ${i.amount}`).join('\n');
+                  navigator.clipboard.writeText(text).then(() => {
+                    alert('הרשימה הועתקה ללוח!');
+                  }).catch(() => alert('לא ניתן להעתיק'));
+                }}
+                className="w-full btn-secondary py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                📋 העתק רשימה בלבד
               </button>
               <button
                 onClick={() => setOrderModal(null)}

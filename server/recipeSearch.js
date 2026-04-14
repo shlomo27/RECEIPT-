@@ -115,12 +115,13 @@ function generateSearchResults(query) {
   const getImage = () => emojiToImage(emoji);
 
   // Make URLs search Google for the real recipe (not fake pages)
-  const googleSearch = (site, q) => `https://www.google.com/search?q=${encodeURIComponent(`${q} מתכון site:${site}`)}`;
+  // Using simple Google search - more reliable than site: operator
+  const googleSearch = (siteName, q) => `https://www.google.com/search?q=${encodeURIComponent(`מתכון ${q} ${siteName}`)}`;
 
   const recipeSites = [
     {
       title: `${query} - מתכון מושלם | פודיש`,
-      url: googleSearch('foodish.co.il', query),
+      url: googleSearch('פודיש', query),
       snippet: `מתכון מעולה ל${query} עם הסבר מפורט שלב אחר שלב. מתכון קל להכנה שכולם יאהבו.`,
       siteName: 'פודיש',
       siteUrl: 'https://www.foodish.co.il',
@@ -132,7 +133,7 @@ function generateSearchResults(query) {
     },
     {
       title: `מתכון ${query} של השולחן | קל וטעים`,
-      url: googleSearch('hashulchan.co.il', query),
+      url: googleSearch('השולחן', query),
       snippet: `${query} - מתכון מסורתי ואותנטי. מומלץ לארוחת שישי עם כל המשפחה.`,
       siteName: 'השולחן',
       siteUrl: 'https://www.hashulchan.co.il',
@@ -144,7 +145,7 @@ function generateSearchResults(query) {
     },
     {
       title: `Best ${query} Recipe - Food Network`,
-      url: googleSearch('foodnetwork.com', query),
+      url: googleSearch('food network', query),
       snippet: `The ultimate ${query} recipe. Tried and tested by our expert chefs. Get the perfect results every time.`,
       siteName: 'Food Network',
       siteUrl: 'https://www.foodnetwork.com',
@@ -156,7 +157,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} Recipe | AllRecipes`,
-      url: googleSearch('allrecipes.com', query),
+      url: googleSearch('allrecipes', query),
       snippet: `A community favorite ${query} recipe with over 2000 reviews. Simple ingredients and easy instructions.`,
       siteName: 'AllRecipes',
       siteUrl: 'https://www.allrecipes.com',
@@ -168,7 +169,7 @@ function generateSearchResults(query) {
     },
     {
       title: `מתכון ${query} מהיר וקל | 10 דקות`,
-      url: googleSearch('10dakot.co.il', query),
+      url: googleSearch('10 דקות', query),
       snippet: `מתכון מהיר ל${query} שאפשר להכין תוך 10 דקות! מושלם לימי חול עמוסים.`,
       siteName: '10 דקות',
       siteUrl: 'https://www.10dakot.co.il',
@@ -180,7 +181,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} - Bon Appétit`,
-      url: googleSearch('bonappetit.com', query),
+      url: googleSearch('bon appetit', query),
       snippet: `Our test kitchen's best ${query}. This recipe has been perfected over dozens of attempts.`,
       siteName: 'Bon Appétit',
       siteUrl: 'https://www.bonappetit.com',
@@ -192,7 +193,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} מסורתי | על השולחן`,
-      url: googleSearch('al-hashulchan.co.il', query),
+      url: googleSearch('על השולחן', query),
       snippet: `מתכון מסורתי ל${query} כמו של סבתא. טעם אותנטי שמזכיר בית.`,
       siteName: 'על השולחן',
       siteUrl: 'https://www.al-hashulchan.co.il',
@@ -204,7 +205,7 @@ function generateSearchResults(query) {
     },
     {
       title: `Easy ${query} | Simply Recipes`,
-      url: googleSearch('simplyrecipes.com', query),
+      url: googleSearch('simply recipes', query),
       snippet: `A straightforward ${query} recipe with step-by-step photos. Perfect for beginners and experienced cooks alike.`,
       siteName: 'Simply Recipes',
       siteUrl: 'https://www.simplyrecipes.com',
