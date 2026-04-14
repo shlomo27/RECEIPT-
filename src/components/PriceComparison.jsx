@@ -184,34 +184,39 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => {
-                  // Open a separate search tab for each product
-                  const searchUrls = {
-                    'שופרסל': 'https://www.shufersal.co.il/online/he/search/results?q=',
-                    'רמי לוי': 'https://www.rframi-levy.co.il/he/online/search?q=',
-                    'יינות ביתן': 'https://www.ybitan.co.il/search?q=',
-                    'חצי חינם': 'https://www.hazi-hinam.co.il/search?q=',
-                    'מגה': 'https://www.mega.co.il/search?q=',
-                  };
-                  const baseUrl = searchUrls[orderModal.name];
-                  if (!baseUrl) {
-                    alert('אתר החנות לא תומך בחיפוש ישיר');
-                    return;
-                  }
                   const proceed = confirm(
-                    `זה יפתח ${orderModal.items.length} טאבים חדשים - אחד לכל מוצר באתר ${orderModal.name}.\nהמשך?`
+                    `זה יפתח ${orderModal.items.length} טאבים חדשים - אחד לכל מוצר (חיפוש בגוגל ב${orderModal.name}).\nהמשך?`
                   );
                   if (!proceed) return;
-                  // Open first tab immediately
+                  // Use Google search with store name - always works
                   orderModal.items.forEach((item, idx) => {
                     setTimeout(() => {
-                      window.open(baseUrl + encodeURIComponent(item.name), '_blank');
-                    }, idx * 300); // 300ms delay to avoid popup blocker
+                      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(item.name + ' ' + orderModal.name)}`;
+                      window.open(searchUrl, '_blank');
+                    }, idx * 300);
                   });
                   setOrderModal(null);
                 }}
                 className="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2"
               >
-                🚀 פתח כל מוצר באתר {orderModal.name} ({orderModal.items.length} טאבים)
+                🔍 חפש כל מוצר בגוגל ב-{orderModal.name} ({orderModal.items.length} טאבים)
+              </button>
+              <button
+                onClick={() => {
+                  // Open the store's main online shopping page
+                  const storeHomes = {
+                    'שופרסל': 'https://www.shufersal.co.il/online/he',
+                    'רמי לוי': 'https://www.rami-levy.co.il/he',
+                    'יינות ביתן': 'https://www.ybitan.co.il/',
+                    'חצי חינם': 'https://www.hazi-hinam.co.il/',
+                    'מגה': 'https://www.mega.co.il/',
+                  };
+                  const home = storeHomes[orderModal.name] || 'https://www.google.com/search?q=' + encodeURIComponent(orderModal.name);
+                  window.open(home, '_blank');
+                }}
+                className="w-full btn-secondary py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                🏪 פתח את האתר הראשי של {orderModal.name}
               </button>
               <button
                 onClick={() => {
@@ -220,13 +225,13 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
                     alert('הרשימה הועתקה ללוח!');
                   }).catch(() => alert('לא ניתן להעתיק'));
                 }}
-                className="w-full btn-secondary py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full text-gray-600 hover:text-gray-800 py-2 text-sm"
               >
                 📋 העתק רשימה בלבד
               </button>
               <button
                 onClick={() => setOrderModal(null)}
-                className="w-full text-gray-500 hover:text-gray-700 py-2"
+                className="w-full text-gray-500 hover:text-gray-700 py-2 text-sm"
               >
                 ביטול
               </button>
