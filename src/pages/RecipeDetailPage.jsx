@@ -231,6 +231,9 @@ export default function RecipeDetailPage() {
             </svg>
             הוראות הכנה - {ingredients.recipeTitle}
           </h3>
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-700">
+            ℹ️ אלו הוראות הכנה כלליות למתכון. להוראות מדויקות מהאתר הספציפי - לחץ "צפה במתכון המלא".
+          </div>
           <ol className="space-y-4">
             {ingredients.steps.map((step, idx) => (
               <li key={idx} className="flex gap-3">
