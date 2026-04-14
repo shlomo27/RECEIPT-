@@ -94,13 +94,33 @@ function generateSearchResults(query) {
     'שווארמה': 'shawarma', 'קובה': 'kibbeh', "מג'דרה": 'mujaddara',
     'פריטטה': 'frittata', 'המבורגר': 'hamburger',
   };
-  const engKeyword = imageKeywords[query] || 'food+recipe';
-  const getImage = () => `https://loremflickr.com/400/300/${engKeyword}`;
+  // Food emojis for visual placeholders
+  const recipeEmojis = {
+    'שניצל': '🍗', 'חומוס': '🥙', 'שקשוקה': '🍳', 'פסטה': '🍝',
+    'עוגת שוקולד': '🍰', 'פלאפל': '🧆', 'מרק עוף': '🍲',
+    'לזניה': '🍝', 'סלט קיסר': '🥗', 'בורקס': '🥐', 'קוסקוס': '🍛',
+    'חציל': '🍆', 'כנאפה': '🍮', 'מוסקה': '🥘', 'מלווח': '🫓',
+    "ג'חנון": '🥨', 'סביח': '🌯', 'פיצה': '🍕', 'טאקו': '🌮',
+    'סושי': '🍣', 'קארי': '🍛', 'שווארמה': '🌯', 'קובה': '🥟',
+    "מג'דרה": '🍚', 'פריטטה': '🥘', 'המבורגר': '🍔',
+  };
+  const emoji = recipeEmojis[query] || '🍽️';
+
+  // Use Google image search as fallback - but we'll use emoji-based
+  // data URL so images always work offline
+  const emojiToImage = (e) => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fb923c"/><stop offset="100%" stop-color="#fed7aa"/></linearGradient></defs><rect width="400" height="300" fill="url(#g)"/><text x="200" y="180" font-size="120" text-anchor="middle">${e}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  };
+  const getImage = () => emojiToImage(emoji);
+
+  // Make URLs search Google for the real recipe (not fake pages)
+  const googleSearch = (site, q) => `https://www.google.com/search?q=${encodeURIComponent(`${q} מתכון site:${site}`)}`;
 
   const recipeSites = [
     {
       title: `${query} - מתכון מושלם | פודיש`,
-      url: `https://www.foodish.co.il/recipe/${encodeURIComponent(query)}`,
+      url: googleSearch('foodish.co.il', query),
       snippet: `מתכון מעולה ל${query} עם הסבר מפורט שלב אחר שלב. מתכון קל להכנה שכולם יאהבו.`,
       siteName: 'פודיש',
       siteUrl: 'https://www.foodish.co.il',
@@ -112,7 +132,7 @@ function generateSearchResults(query) {
     },
     {
       title: `מתכון ${query} של השולחן | קל וטעים`,
-      url: `https://www.hashulchan.co.il/recipe/${encodeURIComponent(query)}`,
+      url: googleSearch('hashulchan.co.il', query),
       snippet: `${query} - מתכון מסורתי ואותנטי. מומלץ לארוחת שישי עם כל המשפחה.`,
       siteName: 'השולחן',
       siteUrl: 'https://www.hashulchan.co.il',
@@ -124,7 +144,7 @@ function generateSearchResults(query) {
     },
     {
       title: `Best ${query} Recipe - Food Network`,
-      url: `https://www.foodnetwork.com/recipes/${encodeURIComponent(query.replace(/\s/g, '-'))}`,
+      url: googleSearch('foodnetwork.com', query),
       snippet: `The ultimate ${query} recipe. Tried and tested by our expert chefs. Get the perfect results every time.`,
       siteName: 'Food Network',
       siteUrl: 'https://www.foodnetwork.com',
@@ -136,7 +156,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} Recipe | AllRecipes`,
-      url: `https://www.allrecipes.com/recipe/${encodeURIComponent(query)}`,
+      url: googleSearch('allrecipes.com', query),
       snippet: `A community favorite ${query} recipe with over 2000 reviews. Simple ingredients and easy instructions.`,
       siteName: 'AllRecipes',
       siteUrl: 'https://www.allrecipes.com',
@@ -148,7 +168,7 @@ function generateSearchResults(query) {
     },
     {
       title: `מתכון ${query} מהיר וקל | 10 דקות`,
-      url: `https://www.10dakot.co.il/recipe/${encodeURIComponent(query)}`,
+      url: googleSearch('10dakot.co.il', query),
       snippet: `מתכון מהיר ל${query} שאפשר להכין תוך 10 דקות! מושלם לימי חול עמוסים.`,
       siteName: '10 דקות',
       siteUrl: 'https://www.10dakot.co.il',
@@ -160,7 +180,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} - Bon Appétit`,
-      url: `https://www.bonappetit.com/recipe/${encodeURIComponent(query.replace(/\s/g, '-'))}`,
+      url: googleSearch('bonappetit.com', query),
       snippet: `Our test kitchen's best ${query}. This recipe has been perfected over dozens of attempts.`,
       siteName: 'Bon Appétit',
       siteUrl: 'https://www.bonappetit.com',
@@ -172,7 +192,7 @@ function generateSearchResults(query) {
     },
     {
       title: `${query} מסורתי | על השולחן`,
-      url: `https://www.al-hashulchan.co.il/recipe/${encodeURIComponent(query)}`,
+      url: googleSearch('al-hashulchan.co.il', query),
       snippet: `מתכון מסורתי ל${query} כמו של סבתא. טעם אותנטי שמזכיר בית.`,
       siteName: 'על השולחן',
       siteUrl: 'https://www.al-hashulchan.co.il',
@@ -184,7 +204,7 @@ function generateSearchResults(query) {
     },
     {
       title: `Easy ${query} | Simply Recipes`,
-      url: `https://www.simplyrecipes.com/recipes/${encodeURIComponent(query.replace(/\s/g, '_'))}`,
+      url: googleSearch('simplyrecipes.com', query),
       snippet: `A straightforward ${query} recipe with step-by-step photos. Perfect for beginners and experienced cooks alike.`,
       siteName: 'Simply Recipes',
       siteUrl: 'https://www.simplyrecipes.com',
@@ -755,11 +775,11 @@ function buildIngredientDBMap() {
 
 export function comparePrices(ingredients) {
   const stores = [
-    { name: 'רמי לוי', logo: '🛒', color: '#e74c3c', orderUrl: 'https://www.rframi-levy.co.il/he/online/search?q=' },
-    { name: 'שופרסל', logo: '🏪', color: '#3498db', orderUrl: 'https://www.shufersal.co.il/online/he/search/results?q=' },
-    { name: 'יינות ביתן', logo: '🍷', color: '#9b59b6', orderUrl: 'https://www.ybitan.co.il/search?q=' },
-    { name: 'חצי חינם', logo: '💰', color: '#2ecc71', orderUrl: 'https://www.hazi-hinam.co.il/search?q=' },
-    { name: 'מגה', logo: '🏬', color: '#f39c12', orderUrl: 'https://www.mega.co.il/search?q=' },
+    { name: 'רמי לוי', logo: '🛒', color: '#e74c3c', orderUrl: 'https://www.rframi-levy.co.il/' },
+    { name: 'שופרסל', logo: '🏪', color: '#3498db', orderUrl: 'https://www.shufersal.co.il/online/he/' },
+    { name: 'יינות ביתן', logo: '🍷', color: '#9b59b6', orderUrl: 'https://www.ybitan.co.il/' },
+    { name: 'חצי חינם', logo: '💰', color: '#2ecc71', orderUrl: 'https://www.hazi-hinam.co.il/' },
+    { name: 'מגה', logo: '🏬', color: '#f39c12', orderUrl: 'https://www.mega.co.il/' },
   ];
 
   const priceComparison = stores.map(store => {

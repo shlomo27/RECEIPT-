@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export default function PriceComparison({ comparison, cheapest, savings, onClose }) {
   const [expandedStore, setExpandedStore] = useState(null);
-  const [copiedStore, setCopiedStore] = useState(null);
+  const [orderModal, setOrderModal] = useState(null);
 
   if (!comparison) return null;
 
@@ -105,23 +105,14 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (store.orderUrl) {
-                        // Copy shopping list to clipboard
-                        const listText = store.items.map(i => `${i.name} - ${i.amount}`).join('\n');
-                        navigator.clipboard.writeText(listText).catch(() => {});
-                        setCopiedStore(store.name);
-                        setTimeout(() => setCopiedStore(null), 3000);
-                        // Open store with first ingredient as search
-                        const firstItem = store.items[0]?.name || '';
-                        window.open(store.orderUrl + encodeURIComponent(firstItem), '_blank');
-                      }
+                      setOrderModal(store);
                     }}
                     className="mt-3 w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                     </svg>
-                    {copiedStore === store.name ? 'הרשימה הועתקה! פותח חנות...' : `הזמן מ-${store.name}`}
+                    הזמן מ-{store.name}
                   </button>
                 </div>
               )}
@@ -138,6 +129,85 @@ export default function PriceComparison({ comparison, cheapest, savings, onClose
           </span>
         </p>
       </div>
+
+      {/* Order Modal */}
+      {orderModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setOrderModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span className="text-2xl">{orderModal.logo}</span>
+                הזמנה מ-{orderModal.name}
+              </h3>
+              <button
+                onClick={() => setOrderModal(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-800">
+              <p className="font-bold mb-1">⚠️ הערה חשובה</p>
+              <p>אתרי הסופר לא מאפשרים הוספה אוטומטית לעגלה. התהליך:</p>
+              <ol className="list-decimal mr-5 mt-1">
+                <li>נעתיק את רשימת הקניות שלך</li>
+                <li>נפתח את אתר {orderModal.name}</li>
+                <li>תחפש כל מוצר ותוסיף לעגלה</li>
+              </ol>
+            </div>
+
+            <h4 className="font-bold text-gray-700 mb-2">רשימת הקניות שלך:</h4>
+            <div className="bg-gray-50 rounded-xl p-4 mb-4 max-h-64 overflow-y-auto">
+              {orderModal.items.map((item, i) => (
+                <div key={i} className="flex justify-between py-1.5 border-b border-gray-200 last:border-0">
+                  <span className="text-sm text-gray-700">{item.name}</span>
+                  <span className="text-sm text-gray-500">{item.amount}</span>
+                </div>
+              ))}
+              <div className="flex justify-between pt-3 mt-2 border-t-2 border-gray-300">
+                <span className="font-bold text-gray-800">סה"כ משוער:</span>
+                <span className="font-bold text-green-600">₪{orderModal.totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  const text = orderModal.items.map(i => `${i.name} - ${i.amount}`).join('\n');
+                  navigator.clipboard.writeText(text).then(() => {
+                    alert('הרשימה הועתקה! עכשיו פותח את אתר ' + orderModal.name);
+                    if (orderModal.orderUrl) {
+                      window.open(orderModal.orderUrl.split('?')[0], '_blank');
+                    }
+                  }).catch(() => {
+                    if (orderModal.orderUrl) {
+                      window.open(orderModal.orderUrl.split('?')[0], '_blank');
+                    }
+                  });
+                }}
+                className="w-full btn-primary py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                📋 העתק רשימה ופתח את {orderModal.name}
+              </button>
+              <button
+                onClick={() => setOrderModal(null)}
+                className="w-full text-gray-500 hover:text-gray-700 py-2"
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
