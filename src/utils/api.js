@@ -1,3 +1,10 @@
+// Backend API URL - configurable for mobile app (Capacitor)
+// In dev/web: empty string uses proxy to localhost:3001 via vite.config
+// In mobile app: set VITE_API_URL to your deployed server URL
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
+const apiUrl = (path) => `${API_BASE}${path}`;
+
 const getUserId = () => localStorage.getItem('recipe_ai_user_id') || 'anonymous';
 
 const headers = () => ({
@@ -6,7 +13,7 @@ const headers = () => ({
 });
 
 export async function searchRecipes(query, filters = {}) {
-  const res = await fetch('/api/search', {
+  const res = await fetch(apiUrl('/api/search'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ query, filters }),
@@ -16,7 +23,7 @@ export async function searchRecipes(query, filters = {}) {
 }
 
 export async function trackClick(siteName, siteUrl, recipeTitle, chefName) {
-  const res = await fetch('/api/track-click', {
+  const res = await fetch(apiUrl('/api/track-click'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ siteName, siteUrl, recipeTitle, chefName }),
@@ -25,7 +32,7 @@ export async function trackClick(siteName, siteUrl, recipeTitle, chefName) {
 }
 
 export async function getIngredients(recipeTitle, recipeUrl) {
-  const res = await fetch('/api/ingredients', {
+  const res = await fetch(apiUrl('/api/ingredients'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ recipeTitle, recipeUrl }),
@@ -35,7 +42,7 @@ export async function getIngredients(recipeTitle, recipeUrl) {
 }
 
 export async function comparePrices(ingredients) {
-  const res = await fetch('/api/compare-prices', {
+  const res = await fetch(apiUrl('/api/compare-prices'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ ingredients }),
@@ -45,14 +52,14 @@ export async function comparePrices(ingredients) {
 }
 
 export async function getPreferences() {
-  const res = await fetch('/api/preferences', {
+  const res = await fetch(apiUrl('/api/preferences'), {
     headers: { 'X-User-Id': getUserId() },
   });
   return res.json();
 }
 
 export async function getHistory() {
-  const res = await fetch('/api/history', {
+  const res = await fetch(apiUrl('/api/history'), {
     headers: { 'X-User-Id': getUserId() },
   });
   return res.json();
@@ -60,13 +67,13 @@ export async function getHistory() {
 
 // --- Favorites ---
 export async function getFavorites() {
-  const res = await fetch('/api/favorites', { headers: headers() });
+  const res = await fetch(apiUrl('/api/favorites'), { headers: headers() });
   if (!res.ok) throw new Error('Failed to load favorites');
   return res.json();
 }
 
 export async function addFavorite(recipe) {
-  const res = await fetch('/api/favorites', {
+  const res = await fetch(apiUrl('/api/favorites'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ recipe }),
@@ -76,7 +83,7 @@ export async function addFavorite(recipe) {
 }
 
 export async function removeFavorite(recipeUrl) {
-  const res = await fetch('/api/favorites', {
+  const res = await fetch(apiUrl('/api/favorites'), {
     method: 'DELETE',
     headers: headers(),
     body: JSON.stringify({ recipeUrl }),
@@ -86,7 +93,7 @@ export async function removeFavorite(recipeUrl) {
 }
 
 export async function checkFavorite(url) {
-  const res = await fetch(`/api/favorites/check?url=${encodeURIComponent(url)}`, {
+  const res = await fetch(apiUrl(`/api/favorites/check?url=${encodeURIComponent(url)}`), {
     headers: headers(),
   });
   if (!res.ok) throw new Error('Failed to check favorite');
@@ -95,13 +102,13 @@ export async function checkFavorite(url) {
 
 // --- Shopping Lists ---
 export async function getShoppingLists() {
-  const res = await fetch('/api/shopping-lists', { headers: headers() });
+  const res = await fetch(apiUrl('/api/shopping-lists'), { headers: headers() });
   if (!res.ok) throw new Error('Failed to load shopping lists');
   return res.json();
 }
 
 export async function saveShoppingList(name, items) {
-  const res = await fetch('/api/shopping-lists', {
+  const res = await fetch(apiUrl('/api/shopping-lists'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ name, items }),
@@ -111,7 +118,7 @@ export async function saveShoppingList(name, items) {
 }
 
 export async function deleteShoppingList(id) {
-  const res = await fetch(`/api/shopping-lists/${id}`, {
+  const res = await fetch(apiUrl(`/api/shopping-lists/${id}`), {
     method: 'DELETE',
     headers: headers(),
   });
@@ -121,7 +128,7 @@ export async function deleteShoppingList(id) {
 
 // --- Search by ingredients ---
 export async function searchByIngredients(ingredients) {
-  const res = await fetch('/api/search-by-ingredients', {
+  const res = await fetch(apiUrl('/api/search-by-ingredients'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ ingredients }),
@@ -132,7 +139,7 @@ export async function searchByIngredients(ingredients) {
 
 // --- AI Chat ---
 export async function sendChatMessage(message, recipeContext) {
-  const res = await fetch('/api/chat', {
+  const res = await fetch(apiUrl('/api/chat'), {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify({ message, recipeContext }),
